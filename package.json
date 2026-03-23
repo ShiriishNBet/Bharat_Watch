@@ -1,0 +1,39 @@
+{
+  "name": "bharatwatch-engine",
+  "version": "1.0.0",
+  "description": "Bharat Watch — India Intelligence Engine. WorldMonitor + UltimateWebScraper + MiroFish AI + Large World Model architecture.",
+  "main": "core/server.js",
+  "scripts": {
+    "start"     : "node core/server.js",
+    "dev"       : "node --watch core/server.js",
+    "demo"      : "DEMO_MODE=true node core/server.js",
+    "scrape"    : "node scripts/test-scraper.js",
+    "seed"      : "node scripts/seed-cache.js",
+    "benchmark" : "node scripts/benchmark.js",
+    "test"      : "node --test tests/"
+  },
+  "dependencies": {
+    "express"        : "^4.19.2",
+    "node-fetch"     : "^2.7.0",
+    "cheerio"        : "^1.0.0",
+    "fast-xml-parser": "^4.3.6",
+    "cors"           : "^2.8.5",
+    "node-cron"      : "^3.0.3"
+  },
+  "devDependencies": {
+    "aws4": "^1.13.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "india", "intelligence", "dashboard", "ai", "prediction",
+    "mirofish", "worldmonitor", "scraper", "llm", "osint",
+    "sensex", "nifty", "commodity-prices", "agmarknet"
+  ],
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/YOUR_USERNAME/bharatwatch-engine.git"
+  },
+  "license": "MIT"
+}

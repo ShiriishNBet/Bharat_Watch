@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+        env:
+          DEMO_MODE: 'true'
+          NODE_ENV: 'test'
+
+      - name: Check engine starts in demo mode
+        run: |
+          DEMO_MODE=true timeout 8 node core/server.js &
+          sleep 5
+          curl -f http://localhost:3000/api/status || exit 1
+        env:
+          DEMO_MODE: 'true'
+          PORT: '3000'
