@@ -262,7 +262,8 @@ const CONFIG = {
     world: [
       { url: 'https://feeds.bbci.co.uk/news/world/rss.xml',                   source: 'BBC WORLD'   },
       { url: 'https://www.aljazeera.com/xml/rss/all.xml',                      source: 'AL JAZEERA'  },
-      { url: 'https://feeds.reuters.com/reuters/topNews',                      source: 'REUTERS'     },
+      { url: 'https://feeds.reuters.com/reuters/INtopNews',                    source: 'REUTERS IN'  },
+      { url: 'https://www.thehindu.com/news/national/feeder/default.rss',         source: 'THE HINDU'  },
       { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',        source: 'NYT WORLD'   },
     ],
 
@@ -273,7 +274,7 @@ const CONFIG = {
     ],
 
     india: [
-      { url: 'https://feeds.feedburner.com/ndtvnews-top-stories',              source: 'NDTV'        },
+      { url: 'https://feeds.ndtv.com/ndtvnews-top-stories',                    source: 'NDTV'        },
       { url: 'https://www.thehindu.com/feeder/default.rss',                    source: 'THE HINDU'   },
       { url: 'https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml',source: 'HT'          },
       { url: 'https://feeds.feedburner.com/timesofindia/home',                 source: 'TIMES OF INDIA'},
