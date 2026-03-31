@@ -776,6 +776,64 @@ const CONFIG = {
     useLlmFallback: true,
   },
 
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  13. SOLUTIONS ENGINE
+  //      Controls how actionable solutions are generated for each impact.
+  //      Every prediction/impact gets 3–5 solutions with real Indian examples.
+  // ══════════════════════════════════════════════════════════════════════════
+  SOLUTIONS: {
+    // How many solutions to generate per impact
+    solutionsPerImpact: 5,
+    // How many top impacts to analyse per citizen type
+    topImpactsToAnalyse: 3,
+    // Cache TTL for solutions (shorter than data — solutions age faster)
+    cacheTTL_ms: 4 * 60 * 60 * 1000,   // 4 hours
+    // Supported citizen types
+    citizenTypes: [
+      'farmer', 'homemaker', 'it_professional', 'gulf_worker',
+      'small_business', 'daily_wager', 'investor', 'student',
+    ],
+    // Include government scheme links in solutions
+    includeGovSchemes: true,
+    // Include real historical examples
+    includeRealExamples: true,
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  14. PATTERN DETECTOR
+  //      AI-powered anomaly detection — cross-references official data vs
+  //      ground truth to flag price manipulation, corruption signals,
+  //      policy gaps, and cartel activity.
+  //      Inspired by: "20-year-old used AI to detect corruption" (LinkedIn AI)
+  // ══════════════════════════════════════════════════════════════════════════
+  PATTERN_DETECTION: {
+    enabled: true,
+    // Run pattern scan every hour (at :10, after data refresh + predictions)
+    cronSchedule: '10 * * * *',
+    // Detection thresholds
+    thresholds: {
+      mandi_to_retail_spread_pct: 80,    // alert if retail > mandi × 1.8
+      cartel_lockstep_count     : 5,     // 5+ commodities all moving same direction
+      inflation_gap_pct         : 6,     // our basket vs official CPI divergence
+      surplus_spike_pct         : 15,    // price spike despite govt saying surplus
+      fuel_revision_delay_days  : 14,    // crude drop but no petrol revision after 14 days
+    },
+    // Which detection types to run
+    detectionTypes: [
+      'PRICE_MANIPULATION',
+      'POLICY_DISCONNECT',
+      'CARTEL_SIGNAL',
+      'INFLATION_GAP',
+      'SUPPLY_ANOMALY',
+      'SUBSIDY_LEAKAGE',
+      'DATA_INCONSISTENCY',
+      'HOARDING_SIGNAL',
+    ],
+    // Severity levels that trigger alerts
+    alertOnSeverity: ['HIGH', 'MEDIUM'],
+  },
+
 // ── Export for Node.js (server.js, prediction-engine.js) ────────────────────
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = CONFIG;

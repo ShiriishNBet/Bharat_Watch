@@ -115,6 +115,76 @@ npm run demo
 
 ## API Reference
 
+## New: Solutions Engine + Pattern Detector AI
+
+### Solutions Engine — "What should I DO about this?"
+Every impact gets 3–5 actionable solutions with **real Indian examples**:
+
+```bash
+GET /api/solutions/quick?type=farmer
+GET /api/solutions/quick?type=homemaker
+GET /api/solutions/quick?type=gulf_worker
+```
+
+Example output for a homemaker during the 2023 onion crisis:
+```json
+{
+  "impact_summary": "Onion prices up 40% due to Maharashtra crop damage",
+  "impact_on_monthly_budget": "₹840 more per month",
+  "solutions": [{
+    "title": "Buy from Rythu Bazaar / APMC direct",
+    "saving_or_benefit": "₹12–18/kg saving vs retail",
+    "real_example": {
+      "who": "Hyderabad families",
+      "what_they_did": "Shifted to Rythu Bazaar during Oct–Dec 2023 spike",
+      "result": "Saved avg ₹1,200/month during crisis period"
+    },
+    "how_to_start": "Search 'Rythu Bazaar near me' or call 1800-425-1110"
+  }]
+}
+```
+
+Supports 8 citizen types: `farmer | homemaker | it_professional | gulf_worker | small_business | daily_wager | investor | student`
+
+---
+
+### Pattern Detector AI — "What's being hidden from you?"
+Inspired by the [AI used to detect corruption in government data](https://www.linkedin.com/posts/linkedin-artificial-intelligence_20-year-old-used-ai-to-detect-corruption-activity-7434908164845776897-3okc/).
+
+Cross-references **official data vs scraped ground truth** to flag:
+
+| Detection Type | What It Catches |
+|---|---|
+| `PRICE_MANIPULATION` | Retail price 2× mandi price — middleman cartel signal |
+| `CARTEL_SIGNAL` | 5+ commodities all moving in lockstep — unnatural coordination |
+| `POLICY_DISCONNECT` | Govt says supply is fine but prices are spiking |
+| `FUEL_REVISION_DELAY` | Crude fell $5/bbl but petrol unchanged for 14+ days |
+| `SUBSIDY_LEAKAGE` | Scheme announced but beneficiary prices unchanged after 30 days |
+| `INFLATION_GAP` | Official CPI 4.5% but our household basket shows 18% |
+| `HOARDING_SIGNAL` | Prices rising IN harvest season (should be opposite) |
+
+```bash
+GET /api/patterns              # latest anomaly scan
+POST /api/patterns/run         # trigger fresh scan
+GET /api/patterns/known        # all known India manipulation patterns
+GET /api/patterns/commodity/onion  # pattern history for one commodity
+```
+
+Real example alert:
+```json
+{
+  "type": "PRICE_MANIPULATION",
+  "severity": "HIGH",
+  "mandi_price": "₹28/kg",
+  "retail_price": "₹55/kg",
+  "spread_pct": 96,
+  "flag": "Onion retails at 96% above mandi — normal is 30–50%",
+  "escalation_path": "Report to: agmarknet.gov.in grievance portal or CCI",
+  "citizen_action": "Buy via e-NAM or direct mandi. Spread >100% is reportable."
+}
+```
+
+
 ### Data Endpoints
 | Endpoint | Description | Source |
 |---|---|---|

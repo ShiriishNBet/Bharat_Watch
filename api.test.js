@@ -173,3 +173,89 @@ test('BUG-3 fix: scraper has explicit target count', () => {
   assert.ok(Array.isArray(SCRAPE_TARGET_NAMES), 'SCRAPE_TARGET_NAMES must be array');
   assert.ok(SCRAPE_TARGET_NAMES.length > 10, 'Should have >10 scrape targets defined');
 });
+
+// ── Solutions Engine Tests ────────────────────────────────────────────────
+test('Solutions: CITIZEN_SOLUTION_MAP has all required citizen types', () => {
+  const { CITIZEN_SOLUTION_MAP } = require('../intelligence/solutions-engine');
+  const required = ['farmer','homemaker','it_professional','gulf_worker','small_business','daily_wager'];
+  required.forEach(type => {
+    assert.ok(CITIZEN_SOLUTION_MAP[type], `Missing citizen type: ${type}`);
+    assert.ok(Array.isArray(CITIZEN_SOLUTION_MAP[type].govSchemes), `${type} missing govSchemes`);
+    assert.ok(CITIZEN_SOLUTION_MAP[type].govSchemes.length > 0, `${type} govSchemes empty`);
+  });
+});
+
+test('Solutions: SOLUTION_CATEGORIES has all required urgency levels', () => {
+  const { SOLUTION_CATEGORIES } = require('../intelligence/solutions-engine');
+  const required = ['immediate','thisWeek','thisMonth','longTerm','govScheme'];
+  required.forEach(cat => {
+    assert.ok(SOLUTION_CATEGORIES[cat], `Missing category: ${cat}`);
+    assert.ok(SOLUTION_CATEGORIES[cat].urgency, `${cat} missing urgency`);
+    assert.ok(SOLUTION_CATEGORIES[cat].timeframe, `${cat} missing timeframe`);
+  });
+});
+
+// ── Pattern Detector Tests ────────────────────────────────────────────────
+test('Pattern Detector: KNOWN_PATTERNS has at least 4 entries', () => {
+  const { KNOWN_PATTERNS } = require('../intelligence/pattern-detector');
+  assert.ok(Array.isArray(KNOWN_PATTERNS));
+  assert.ok(KNOWN_PATTERNS.length >= 4, 'Should have >=4 known patterns');
+  KNOWN_PATTERNS.forEach(p => {
+    assert.ok(p.id,           `Pattern missing id`);
+    assert.ok(p.name,         `Pattern ${p.id} missing name`);
+    assert.ok(p.how_to_spot,  `Pattern ${p.id} missing how_to_spot`);
+    assert.ok(p.citizen_action, `Pattern ${p.id} missing citizen_action`);
+  });
+});
+
+test('Pattern Detector: detectMandiRetailSpread flags high spread correctly', () => {
+  const { detectMandiRetailSpread } = require('../intelligence/pattern-detector');
+  const commodities = [{ name: 'ONION', price: '₹90', unit: '/kg', dir: 'up', chg: '+₹30', chgNumeric: 30 }];
+  const mandiData   = { onion: { pricePerKg: 28 } };  // retail ₹90 vs mandi ₹28 = 221% spread
+  const alerts = detectMandiRetailSpread(commodities, mandiData);
+  assert.ok(alerts.length > 0, 'Should detect high spread');
+  assert.strictEqual(alerts[0].type, 'PRICE_MANIPULATION');
+  assert.strictEqual(alerts[0].severity, 'HIGH');
+  assert.ok(alerts[0].spread_pct > 80, 'Spread should be > 80%');
+});
+
+test('Pattern Detector: detectMandiRetailSpread passes normal spread', () => {
+  const { detectMandiRetailSpread } = require('../intelligence/pattern-detector');
+  const commodities = [{ name: 'ONION', price: '₹35', unit: '/kg', dir: 'flat', chg: 'stable', chgNumeric: 0 }];
+  const mandiData   = { onion: { pricePerKg: 28 } };  // 25% spread — normal
+  const alerts = detectMandiRetailSpread(commodities, mandiData);
+  assert.strictEqual(alerts.length, 0, 'Normal spread should not trigger alert');
+});
+
+test('Pattern Detector: detectLockstepMovement flags cartel signal', () => {
+  const { detectLockstepMovement } = require('../intelligence/pattern-detector');
+  const commodities = Array(8).fill(null).map((_, i) => ({
+    name: `Item${i}`, dir: 'up', chg: '+5', chgNumeric: 5,
+  }));
+  const alerts = detectLockstepMovement(commodities);
+  assert.ok(alerts.length > 0, 'Should detect lockstep movement');
+  assert.strictEqual(alerts[0].type, 'CARTEL_SIGNAL');
+});
+
+test('Pattern Detector: THRESHOLDS are reasonable values', () => {
+  const { THRESHOLDS } = require('../intelligence/pattern-detector');
+  assert.ok(THRESHOLDS.mandi_to_retail_spread_pct >= 50, 'Spread threshold should be >= 50%');
+  assert.ok(THRESHOLDS.cartel_lockstep_count >= 3,       'Lockstep count should be >= 3');
+  assert.ok(THRESHOLDS.inflation_gap_pct >= 3,           'Inflation gap should be >= 3%');
+});
+
+// ── Config: New sections exist ────────────────────────────────────────────
+test('Config: SOLUTIONS section exists with citizenTypes', () => {
+  const CFG = require('../config/bharat-watch.config');
+  assert.ok(CFG.SOLUTIONS, 'SOLUTIONS config section missing');
+  assert.ok(Array.isArray(CFG.SOLUTIONS.citizenTypes), 'SOLUTIONS.citizenTypes must be array');
+  assert.ok(CFG.SOLUTIONS.solutionsPerImpact > 0, 'solutionsPerImpact must be > 0');
+});
+
+test('Config: PATTERN_DETECTION section exists and is enabled', () => {
+  const CFG = require('../config/bharat-watch.config');
+  assert.ok(CFG.PATTERN_DETECTION, 'PATTERN_DETECTION config section missing');
+  assert.ok(Array.isArray(CFG.PATTERN_DETECTION.detectionTypes), 'detectionTypes must be array');
+  assert.ok(CFG.PATTERN_DETECTION.detectionTypes.length >= 6, 'Should have >= 6 detection types');
+  assert.ok(CFG.PATTERN_DETECTION.thresholds, 'thresholds missing');
+});
